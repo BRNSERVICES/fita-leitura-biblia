@@ -16,7 +16,7 @@ export function spDate(d: Date = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
 }
 export function dayNum(s: string) {
-  const [y, m, d] = s.slice(0, 10).split("-").map(Number);
+  const [y = 0, m = 1, d = 1] = s.slice(0, 10).split("-").map(Number);
   return Math.round(Date.UTC(y, m - 1, d) / 86400000);
 }
 export function fromDayNum(n: number) {
