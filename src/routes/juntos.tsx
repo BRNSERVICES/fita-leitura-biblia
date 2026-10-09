@@ -58,13 +58,11 @@ export function NameForm({ userId, initial = "", onDone, cta = "Salvar" }: { use
     setBusy(false);
   }
   return (
-    <form onSubmit={submit} className="flex gap-2">
+    <form onSubmit={submit} className="flex flex-wrap gap-2">
       <label className="flex-1"><span className="sr-only">Nome de exibição</span>
         <input value={name} maxLength={40} onChange={(e) => setName(e.target.value)} placeholder="Como quer ser chamado?" className="btn-ghost w-full px-3 py-2" /></label>
       <button disabled={busy} className="btn-primary px-4 py-2 text-sm">{busy ? "…" : cta}</button>
-      {err && <p role="alert" className="sr-only">{err}</p>}
-      {err && <span className="sr-only" />}
-      {err && <p className="basis-full text-sm text-ribbon" aria-hidden>{err}</p>}
+      {err && <p role="alert" className="basis-full text-sm text-ribbon">{err}</p>}
     </form>
   );
 }
