@@ -44,6 +44,7 @@ export function RoundCheck({ checked, onChange, label }: { checked: boolean; onC
 const tabs = [
   { to: "/", label: "Hoje" },
   { to: "/plano", label: "Plano" },
+  { to: "/juntos", label: "Juntos" },
   { to: "/ajustes", label: "Ajustes" },
 ] as const;
 
@@ -72,6 +73,7 @@ export function Shell({ children, nav = true }: { children: (ctx: { userId: stri
   const up = useUserPlan(userId);
   if (loading) return <Frame><Loading /></Frame>;
   if (!session) return <Navigate to="/auth" />;
+  if (typeof window !== "undefined" && sessionStorage.getItem("fita-codigo")) return <Navigate to="/entrar" />;
   return (
     <Frame nav={nav && !!up.data}>
       {up.isLoading ? <Loading /> : up.isError ? <ErrorBox onRetry={() => up.refetch()} /> :
