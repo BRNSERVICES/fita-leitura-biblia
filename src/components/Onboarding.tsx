@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import { spDate, usePlans } from "@/lib/data";
+import { PLAN_BLURB, spDate, usePlans } from "@/lib/data";
 import { ErrorBox, Loading } from "./ui-fita";
 
 export function Onboarding({ userId }: { userId: string }) {
@@ -37,7 +37,7 @@ export function Onboarding({ userId }: { userId: string }) {
         {plans.data!.map((p) => (
           <label key={p.id} className={`card-fita flex cursor-pointer items-center gap-3 p-4 ${chosen === p.id ? "border-ink" : ""}`}>
             <input type="radio" name="plan" checked={chosen === p.id} onChange={() => setPlanId(p.id)} className="accent-[var(--ink)]" />
-            <span><span className="block font-serif text-lg">{p.name}</span><span className="text-sm text-ink-2">{p.total_days} dias</span></span>
+            <span><span className="block font-serif text-lg">{p.name}</span><span className="text-sm text-ink-2">{PLAN_BLURB[p.id] ?? `${p.total_days} dias`}</span></span>
           </label>
         ))}
       </fieldset>

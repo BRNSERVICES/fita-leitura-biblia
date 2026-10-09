@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AjustesRouteImport } from './routes/ajustes'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as EntrarRouteImport } from './routes/entrar'
+import { Route as JuntosRouteImport } from './routes/juntos'
 import { Route as PlanoRouteImport } from './routes/plano'
 import { Route as LerBookChapterRouteImport } from './routes/ler.$book.$chapter'
 
@@ -30,6 +32,16 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EntrarRoute = EntrarRouteImport.update({
+  id: '/entrar',
+  path: '/entrar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JuntosRoute = JuntosRouteImport.update({
+  id: '/juntos',
+  path: '/juntos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlanoRoute = PlanoRouteImport.update({
   id: '/plano',
   path: '/plano',
@@ -45,6 +57,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ajustes': typeof AjustesRoute
   '/auth': typeof AuthRoute
+  '/entrar': typeof EntrarRoute
+  '/juntos': typeof JuntosRoute
   '/plano': typeof PlanoRoute
   '/ler/$book/$chapter': typeof LerBookChapterRoute
 }
@@ -52,6 +66,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ajustes': typeof AjustesRoute
   '/auth': typeof AuthRoute
+  '/entrar': typeof EntrarRoute
+  '/juntos': typeof JuntosRoute
   '/plano': typeof PlanoRoute
   '/ler/$book/$chapter': typeof LerBookChapterRoute
 }
@@ -60,21 +76,47 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/ajustes': typeof AjustesRoute
   '/auth': typeof AuthRoute
+  '/entrar': typeof EntrarRoute
+  '/juntos': typeof JuntosRoute
   '/plano': typeof PlanoRoute
   '/ler/$book/$chapter': typeof LerBookChapterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/ajustes' | '/auth' | '/plano' | '/ler/$book/$chapter'
+  fullPaths:
+    | '/'
+    | '/ajustes'
+    | '/auth'
+    | '/entrar'
+    | '/juntos'
+    | '/plano'
+    | '/ler/$book/$chapter'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/ajustes' | '/auth' | '/plano' | '/ler/$book/$chapter'
-  id: '__root__' | '/' | '/ajustes' | '/auth' | '/plano' | '/ler/$book/$chapter'
+  to:
+    | '/'
+    | '/ajustes'
+    | '/auth'
+    | '/entrar'
+    | '/juntos'
+    | '/plano'
+    | '/ler/$book/$chapter'
+  id:
+    | '__root__'
+    | '/'
+    | '/ajustes'
+    | '/auth'
+    | '/entrar'
+    | '/juntos'
+    | '/plano'
+    | '/ler/$book/$chapter'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AjustesRoute: typeof AjustesRoute
   AuthRoute: typeof AuthRoute
+  EntrarRoute: typeof EntrarRoute
+  JuntosRoute: typeof JuntosRoute
   PlanoRoute: typeof PlanoRoute
   LerBookChapterRoute: typeof LerBookChapterRoute
 }
@@ -102,6 +144,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/entrar': {
+      id: '/entrar'
+      path: '/entrar'
+      fullPath: '/entrar'
+      preLoaderRoute: typeof EntrarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/juntos': {
+      id: '/juntos'
+      path: '/juntos'
+      fullPath: '/juntos'
+      preLoaderRoute: typeof JuntosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/plano': {
       id: '/plano'
       path: '/plano'
@@ -123,6 +179,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AjustesRoute: AjustesRoute,
   AuthRoute: AuthRoute,
+  EntrarRoute: EntrarRoute,
+  JuntosRoute: JuntosRoute,
   PlanoRoute: PlanoRoute,
   LerBookChapterRoute: LerBookChapterRoute,
 }

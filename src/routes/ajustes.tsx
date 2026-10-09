@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Shell, Loading, ErrorBox } from "@/components/ui-fita";
 import { supabase } from "@/lib/supabase";
-import { useTranslation, type UserPlan } from "@/lib/data";
+import { PLAN_BLURB, spDate, usePlans, useProfile, useTranslation, type UserPlan } from "@/lib/data";
+import { NameForm } from "./juntos";
+import { downloadIcs } from "@/lib/ics";
 import { applyTheme, type ThemeMode } from "@/lib/theme";
 
 export const Route = createFileRoute("/ajustes")({
@@ -34,6 +36,19 @@ function Settings({ userId, up }: { userId: string; up: UserPlan }) {
   const nav = useNavigate();
   const [time, setTime] = useState((up.reminder_time ?? "07:00").slice(0, 5));
   const [msg, setMsg] = useState("");
+  const plans = usePlans();
+  const profile = useProfile(userId);
+  const [pick, setPick] = useState<number | null>(null);
+  const [planMsg, setPlanMsg] = useState("");
+  async function changePlan() {
+    if (!pick) return;
+    setPlanMsg("");
+    const { error } = await supabase.from("user_plans").insert({ user_id: userId, plan_id: pick, translation_id: up.translation_id, start_date: spDate(), reminder_time: up.reminder_time });
+    if (error) return setPlanMsg("Não foi possível trocar o plano. Tente de novo.");
+    setPick(null);
+    qc.invalidateQueries({ queryKey: ["user_plan", userId] });
+    setPlanMsg("Plano trocado. Bom recomeço!");
+  }
   const [theme, setTheme] = useState<ThemeMode>("system");
   useEffect(() => setTheme((localStorage.getItem("fita-theme") as ThemeMode) || "system"), []);
 
@@ -72,6 +87,43 @@ function Settings({ userId, up }: { userId: string; up: UserPlan }) {
           <button onClick={saveTime} className="btn-primary px-4 py-2 text-sm">Salvar</button>
         </div>
         {msg && <p role="status" className="mt-2 text-sm text-ink-2">{msg}</p>}
+        <button onClick={() => { if (!up.reminder_time) return setMsg("Defina e salve um horário primeiro."); downloadIcs(up.reminder_time); }}
+          className="btn-ghost mt-3 w-full py-3 text-sm font-medium">Adicionar ao meu calendário</button>
+        <p className="mt-2 text-xs text-ink-2">Seu celular ou computador vai te lembrar todos os dias, mesmo com o app fechado.</p>
+      </Section>
+
+      <Section title="Plano de leitura">
+        {plans.isLoading ? <Loading /> : plans.isError ? <ErrorBox onRetry={() => plans.refetch()} /> : (
+          <div className="space-y-3">
+            <p className="text-sm">Atual: <strong className="font-serif">{plans.data!.find((p) => p.id === up.plan_id)?.name}</strong></p>
+            <fieldset>
+              <legend className="mb-2 text-sm text-ink-2">Trocar plano</legend>
+              <div className="space-y-2">
+                {plans.data!.filter((p) => p.id !== up.plan_id).map((p) => (
+                  <label key={p.id} className={`flex cursor-pointer items-start gap-3 rounded-[14px] border p-3 ${pick === p.id ? "border-ink" : "border-thread"}`}>
+                    <input type="radio" name="novo-plano" checked={pick === p.id} onChange={() => setPick(p.id)} className="mt-1 accent-[var(--ink)]" />
+                    <span><span className="block font-serif">{p.name}</span><span className="text-sm text-ink-2">{PLAN_BLURB[p.id] ?? ""}</span></span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            {pick && (
+              <div role="alertdialog" aria-label="Confirmar troca de plano" className="rounded-[14px] bg-page p-3 text-sm">
+                <p>O novo plano começa hoje, no dia 1. Seu progresso de leitura é mantido.</p>
+                <div className="mt-3 flex gap-2">
+                  <button onClick={changePlan} className="btn-primary flex-1 py-2">Trocar plano</button>
+                  <button onClick={() => setPick(null)} className="btn-ghost px-4 py-2">Cancelar</button>
+                </div>
+              </div>
+            )}
+            {planMsg && <p role="status" className="text-sm text-ink-2">{planMsg}</p>}
+          </div>
+        )}
+      </Section>
+
+      <Section title="Nome de exibição">
+        {profile.isLoading ? <Loading /> : <NameForm key={profile.data?.display_name ?? ""} userId={userId} initial={profile.data?.display_name ?? ""} />}
+        <p className="mt-2 text-xs text-ink-2">Aparece para as pessoas dos seus grupos em Juntos.</p>
       </Section>
 
       <Section title="Aparência">

@@ -41,6 +41,10 @@ export function streak(readings: Reading[]) {
   while (days.has(d)) { n++; d--; }
   return n;
 }
+export const PLAN_BLURB: Record<number, string> = {
+  1: "Do Gênesis ao Apocalipse, em ordem",
+  2: "Um pouco de cada parte da Bíblia todo dia",
+};
 export const key = (b: number, c: number) => `${b}:${c}`;
 
 // ---------- pagination ----------
@@ -73,7 +77,7 @@ export function useUserPlan(userId: string) {
   return useQuery({
     queryKey: ["user_plan", userId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("user_plans").select("*").eq("user_id", userId).order("id").limit(1).maybeSingle();
+      const { data, error } = await supabase.from("user_plans").select("*").eq("user_id", userId).order("start_date", { ascending: false }).order("id", { ascending: false }).limit(1).maybeSingle();
       if (error) throw error;
       return (data as UserPlan | null) ?? null;
     },
@@ -165,4 +169,25 @@ export function useToggleRead(userId: string) {
     onError: (_e, _v, ctx) => ctx?.prev && qc.setQueryData(qk, ctx.prev),
     onSettled: () => qc.invalidateQueries({ queryKey: qk }),
   });
+}
+
+export function planChapterSet(items: PlanItem[]) {
+  return new Set(items.map((i) => key(i.book_id, i.chapter)));
+}
+
+export function useProfile(userId: string) {
+  return useQuery({
+    queryKey: ["profile", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("profiles").select("user_id,display_name").eq("user_id", userId).maybeSingle();
+      if (error) throw error;
+      return (data as { user_id: string; display_name: string } | null) ?? null;
+    },
+  });
+}
+
+export async function saveProfile(userId: string, name: string) {
+  const { error } = await supabase.from("profiles").upsert({ user_id: userId, display_name: name.trim() }, { onConflict: "user_id" });
+  if (error) throw error;
 }

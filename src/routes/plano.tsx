@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Shell, Loading, ErrorBox } from "@/components/ui-fita";
-import { dayNum, readingDays, spDate, TOTAL_CHAPTERS, usePlans, useReadings, type UserPlan } from "@/lib/data";
+import { dayNum, key, planChapterSet, readingDays, spDate, usePlanItems, usePlans, useReadings, type UserPlan } from "@/lib/data";
 
 export const Route = createFileRoute("/plano")({
   ssr: false,
@@ -20,11 +20,15 @@ const pct = (a: number, b: number) => Math.min(100, Math.round((a / b) * 100));
 function PlanPage({ userId, up }: { userId: string; up: UserPlan }) {
   const plans = usePlans();
   const readings = useReadings(userId);
-  if (plans.isLoading || readings.isLoading) return <Loading />;
-  if (plans.isError || readings.isError) return <ErrorBox onRetry={() => { plans.refetch(); readings.refetch(); }} />;
+  const items = usePlanItems(up.plan_id);
+  if (plans.isLoading || readings.isLoading || items.isLoading) return <Loading />;
+  if (plans.isError || readings.isError || items.isError) return <ErrorBox onRetry={() => { plans.refetch(); readings.refetch(); items.refetch(); }} />;
   const plan = plans.data!.find((p) => p.id === up.plan_id);
   const r = readings.data!;
-  const overall = pct(r.length, TOTAL_CHAPTERS);
+  const inPlan = planChapterSet(items.data!);
+  const TOTAL = inPlan.size || 1189;
+  const readInPlan = r.filter((x) => inPlan.has(key(x.book_id, x.chapter))).length;
+  const overall = pct(readInPlan, TOTAL);
   const at = r.filter((x) => x.book_id <= 39).length;
   const nt = r.length - at;
   const days = readingDays(r);
@@ -41,7 +45,7 @@ function PlanPage({ userId, up }: { userId: string; up: UserPlan }) {
       <section className="card-fita p-5">
         <h2 className="text-sm font-medium text-ink-2">Progresso geral</h2>
         <p className="mt-1 font-serif text-4xl font-semibold">{overall}%</p>
-        <p className="text-sm text-ink-2">{r.length} de {TOTAL_CHAPTERS} capítulos</p>
+        <p className="text-sm text-ink-2">{readInPlan} de {TOTAL} capítulos</p>
         <div className="relative mt-4 h-3 rounded-full bg-page" role="progressbar" aria-valuenow={overall} aria-valuemin={0} aria-valuemax={100} aria-label="Progresso geral">
           <div className="h-full rounded-full bg-leaf" style={{ width: `${overall}%` }} />
           <div className="absolute -top-1.5 h-6 w-[3px] rounded-sm bg-ribbon" style={{ left: `calc(${overall}% - 1.5px)` }} aria-hidden />

@@ -25,7 +25,7 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ t: string; err?: boolean } | null>(null);
   if (loading) return <Frame><Loading /></Frame>;
-  if (session) return <Navigate to="/" />;
+  if (session) return (sessionStorage.getItem("fita-codigo") ? <Navigate to="/entrar" search={{ codigo: undefined }} /> : <Navigate to="/" />);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault(); setBusy(true); setMsg(null);
