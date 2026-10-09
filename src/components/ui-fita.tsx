@@ -73,7 +73,7 @@ export function Shell({ children, nav = true }: { children: (ctx: { userId: stri
   const up = useUserPlan(userId);
   if (loading) return <Frame><Loading /></Frame>;
   if (!session) return <Navigate to="/auth" />;
-  if (typeof window !== "undefined" && sessionStorage.getItem("fita-codigo")) return <Navigate to="/entrar" />;
+  if (typeof window !== "undefined" && sessionStorage.getItem("fita-codigo")) return <Navigate to="/entrar" search={{ codigo: undefined }} />;
   return (
     <Frame nav={nav && !!up.data}>
       {up.isLoading ? <Loading /> : up.isError ? <ErrorBox onRetry={() => up.refetch()} /> :
