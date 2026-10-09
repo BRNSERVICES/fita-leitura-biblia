@@ -36,7 +36,7 @@ function Today({ userId, up }: { userId: string; up: UserPlan }) {
   const name = (b: number, c: number) => `${books.data!.byId.get(b)?.name_pt ?? ""} ${c}`;
   const done = todays.filter((i) => read.has(key(i.book_id, i.chapter))).length;
   const next = todays.find((i) => !read.has(key(i.book_id, i.chapter)));
-  const late = items.data!.filter((i) => i.day_number < n && !read.has(key(i.book_id, i.chapter)));
+  const late: typeof todays = items.data!.filter((i) => i.day_number < n && !read.has(key(i.book_id, i.chapter)));
   const s = streak(readings.data!);
   const vlist = (verses.data ?? []).filter((v) => v.verse > 0);
   const vod = vlist.length ? vlist[(n - 1) % vlist.length] : null;
@@ -48,10 +48,10 @@ function Today({ userId, up }: { userId: string; up: UserPlan }) {
         <h1 className="mt-1 font-serif text-3xl font-semibold">Dia {n} de {total}</h1>
       </header>
 
-      {late.length > 0 && (
+      {late[0] && (
         <div className="card-fita flex items-center justify-between gap-3 p-4">
-          <p className="text-sm">Você tem {late.length} {late.length === 1 ? "capítulo atrasado" : "capítulos atrasados"}. Retome em {name(late[0].book_id, late[0].chapter)}.</p>
-          <Link to="/ler/$book/$chapter" params={{ book: String(late[0].book_id), chapter: String(late[0].chapter) }} className="btn-ghost shrink-0 px-3 py-2 text-sm">Retomar</Link>
+          <p className="text-sm">Você tem {late.length} {late.length === 1 ? "capítulo atrasado" : "capítulos atrasados"}. Retome em {name(late[0]!.book_id, late[0]!.chapter)}.</p>
+          <Link to="/ler/$book/$chapter" params={{ book: String(late[0]!.book_id), chapter: String(late[0]!.chapter) }} className="btn-ghost shrink-0 px-3 py-2 text-sm">Retomar</Link>
         </div>
       )}
 
