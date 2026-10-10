@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AjustesRouteImport } from './routes/ajustes'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ConquistasRouteImport } from './routes/conquistas'
 import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as JuntosRouteImport } from './routes/juntos'
 import { Route as PlanoRouteImport } from './routes/plano'
@@ -31,6 +32,11 @@ const AjustesRoute = AjustesRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConquistasRoute = ConquistasRouteImport.update({
+  id: '/conquistas',
+  path: '/conquistas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EntrarRoute = EntrarRouteImport.update({
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ajustes': typeof AjustesRoute
   '/auth': typeof AuthRoute
+  '/conquistas': typeof ConquistasRoute
   '/entrar': typeof EntrarRoute
   '/juntos': typeof JuntosRoute
   '/plano': typeof PlanoRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ajustes': typeof AjustesRoute
   '/auth': typeof AuthRoute
+  '/conquistas': typeof ConquistasRoute
   '/entrar': typeof EntrarRoute
   '/juntos': typeof JuntosRoute
   '/plano': typeof PlanoRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/ajustes': typeof AjustesRoute
   '/auth': typeof AuthRoute
+  '/conquistas': typeof ConquistasRoute
   '/entrar': typeof EntrarRoute
   '/juntos': typeof JuntosRoute
   '/plano': typeof PlanoRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ajustes'
     | '/auth'
+    | '/conquistas'
     | '/entrar'
     | '/juntos'
     | '/plano'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ajustes'
     | '/auth'
+    | '/conquistas'
     | '/entrar'
     | '/juntos'
     | '/plano'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ajustes'
     | '/auth'
+    | '/conquistas'
     | '/entrar'
     | '/juntos'
     | '/plano'
@@ -127,6 +139,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AjustesRoute: typeof AjustesRoute
   AuthRoute: typeof AuthRoute
+  ConquistasRoute: typeof ConquistasRoute
   EntrarRoute: typeof EntrarRoute
   JuntosRoute: typeof JuntosRoute
   PlanoRoute: typeof PlanoRoute
@@ -155,6 +168,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conquistas': {
+      id: '/conquistas'
+      path: '/conquistas'
+      fullPath: '/conquistas'
+      preLoaderRoute: typeof ConquistasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/entrar': {
@@ -199,6 +219,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AjustesRoute: AjustesRoute,
   AuthRoute: AuthRoute,
+  ConquistasRoute: ConquistasRoute,
   EntrarRoute: EntrarRoute,
   JuntosRoute: JuntosRoute,
   PlanoRoute: PlanoRoute,
