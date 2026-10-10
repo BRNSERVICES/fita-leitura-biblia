@@ -66,7 +66,7 @@ function Reader({ userId, up }: { userId: string; up: UserPlan }) {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <Link to="/" className="text-sm text-ink-2">‹ Hoje</Link>
+        <div className="flex gap-4 text-sm text-ink-2"><Link to="/">‹ Hoje</Link><Link to="/biblia">Livros</Link></div>
         <div className="flex gap-2">
           <button onClick={() => change(-2)} aria-label="Diminuir fonte" className="btn-ghost px-3 py-1.5 text-sm">A−</button>
           <button onClick={() => change(2)} aria-label="Aumentar fonte" className="btn-ghost px-3 py-1.5 text-base">A+</button>

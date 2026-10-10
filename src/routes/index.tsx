@@ -119,6 +119,8 @@ function Today({ userId, up }: { userId: string; up: UserPlan }) {
         <div className="btn-primary w-full py-4 text-center text-base opacity-80">Leitura de hoje concluída</div>
       )}
 
+      <Link to="/biblia" className="btn-ghost block w-full py-3 text-center text-sm font-medium">Escolher outro capítulo</Link>
+
       <Modal open={celebrate} onClose={() => setCelebrate(false)} labelId="cel-t">
         <Confetti />
         <h2 id="cel-t" className="font-serif text-3xl font-semibold">Leitura de hoje concluída!</h2>
