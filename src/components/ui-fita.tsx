@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
 import { useUserPlan, type UserPlan } from "@/lib/data";
 import { Onboarding } from "./Onboarding";
+import { GameLayer } from "./game-ui";
 
 export function Loading({ label = "Carregando…" }: { label?: string }) {
   return (
@@ -45,6 +46,7 @@ const tabs = [
   { to: "/", label: "Hoje" },
   { to: "/plano", label: "Plano" },
   { to: "/juntos", label: "Juntos" },
+  { to: "/conquistas", label: "Conquistas" },
   { to: "/ajustes", label: "Ajustes" },
 ] as const;
 
@@ -57,7 +59,7 @@ function BottomNav() {
           const active = pathname === t.to;
           return (
             <Link key={t.to} to={t.to} role="tab" aria-selected={active}
-              className={`flex-1 border-t-[3px] py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] text-center text-sm font-medium ${active ? "border-ribbon text-ink" : "border-transparent text-ink-2"}`}>
+              className={`flex-1 border-t-[3px] py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] text-center text-[13px] font-medium ${active ? "border-ribbon text-ink" : "border-transparent text-ink-2"}`}>
               {t.label}
             </Link>
           );
@@ -77,7 +79,7 @@ export function Shell({ children, nav = true }: { children: (ctx: { userId: stri
   return (
     <Frame nav={nav && !!up.data}>
       {up.isLoading ? <Loading /> : up.isError ? <ErrorBox onRetry={() => up.refetch()} /> :
-        !up.data ? <Onboarding userId={userId} /> : children({ userId, up: up.data })}
+        !up.data ? <Onboarding userId={userId} /> : <>{children({ userId, up: up.data })}<GameLayer /></>}
     </Frame>
   );
 }
