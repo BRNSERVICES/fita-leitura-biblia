@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as JuntosRouteImport } from './routes/juntos'
 import { Route as PlanoRouteImport } from './routes/plano'
+import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as LerBookChapterRouteImport } from './routes/ler.$book.$chapter'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +48,11 @@ const PlanoRoute = PlanoRouteImport.update({
   path: '/plano',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
+  id: '/redefinir-senha',
+  path: '/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LerBookChapterRoute = LerBookChapterRouteImport.update({
   id: '/ler/$book/$chapter',
   path: '/ler/$book/$chapter',
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/entrar': typeof EntrarRoute
   '/juntos': typeof JuntosRoute
   '/plano': typeof PlanoRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/ler/$book/$chapter': typeof LerBookChapterRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/entrar': typeof EntrarRoute
   '/juntos': typeof JuntosRoute
   '/plano': typeof PlanoRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/ler/$book/$chapter': typeof LerBookChapterRoute
 }
 export interface FileRoutesById {
@@ -79,6 +87,7 @@ export interface FileRoutesById {
   '/entrar': typeof EntrarRoute
   '/juntos': typeof JuntosRoute
   '/plano': typeof PlanoRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/ler/$book/$chapter': typeof LerBookChapterRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/entrar'
     | '/juntos'
     | '/plano'
+    | '/redefinir-senha'
     | '/ler/$book/$chapter'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/entrar'
     | '/juntos'
     | '/plano'
+    | '/redefinir-senha'
     | '/ler/$book/$chapter'
   id:
     | '__root__'
@@ -108,6 +119,7 @@ export interface FileRouteTypes {
     | '/entrar'
     | '/juntos'
     | '/plano'
+    | '/redefinir-senha'
     | '/ler/$book/$chapter'
   fileRoutesById: FileRoutesById
 }
@@ -118,6 +130,7 @@ export interface RootRouteChildren {
   EntrarRoute: typeof EntrarRoute
   JuntosRoute: typeof JuntosRoute
   PlanoRoute: typeof PlanoRoute
+  RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   LerBookChapterRoute: typeof LerBookChapterRoute
 }
 
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlanoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/redefinir-senha': {
+      id: '/redefinir-senha'
+      path: '/redefinir-senha'
+      fullPath: '/redefinir-senha'
+      preLoaderRoute: typeof RedefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ler/$book/$chapter': {
       id: '/ler/$book/$chapter'
       path: '/ler/$book/$chapter'
@@ -182,6 +202,7 @@ const rootRouteChildren: RootRouteChildren = {
   EntrarRoute: EntrarRoute,
   JuntosRoute: JuntosRoute,
   PlanoRoute: PlanoRoute,
+  RedefinirSenhaRoute: RedefinirSenhaRoute,
   LerBookChapterRoute: LerBookChapterRoute,
 }
 export const routeTree = rootRouteImport
