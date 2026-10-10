@@ -38,39 +38,56 @@ function NotFoundComponent() {
   );
 }
 
+const CHUNK_ERR = /dynamically imported module|Failed to fetch|Importing a module script failed|Loading chunk|error loading dynamically/i;
+
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
+  const message = String((error as { message?: string })?.message ?? error ?? "").slice(0, 200);
+  const stale = CHUNK_ERR.test(message);
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
+    if (stale && typeof window !== "undefined" && !sessionStorage.getItem("fita-reloaded")) {
+      sessionStorage.setItem("fita-reloaded", "1");
+      window.location.reload();
+    }
+  }, [error, stale]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          {stale ? "O app foi atualizado" : "Esta página não carregou"}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          {stale
+            ? "Recarregue a página para usar a versão mais nova."
+            : "Algo deu errado do nosso lado. Tente de novo ou volte para o início."}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
+              if (stale) { sessionStorage.removeItem("fita-reloaded"); window.location.reload(); return; }
               router.invalidate();
               reset();
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            {stale ? "Recarregar" : "Tentar de novo"}
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            Ir para Hoje
           </a>
         </div>
+        {message && (
+          <p className="mt-6 break-words text-xs text-muted-foreground/70">
+            Detalhe técnico: {message}
+            {typeof window !== "undefined" ? ` (${window.location.pathname})` : ""}
+          </p>
+        )}
       </div>
     </div>
   );
