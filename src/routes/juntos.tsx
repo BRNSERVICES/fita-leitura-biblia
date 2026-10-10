@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Shell, Loading, ErrorBox } from "@/components/ui-fita";
 import { supabase } from "@/lib/supabase";
 import { saveProfile, useProfile } from "@/lib/data";
+import { LevelSeal } from "@/components/game-ui";
 
 export const Route = createFileRoute("/juntos")({
   ssr: false,
@@ -153,6 +154,15 @@ function PairCard({ pair, userId }: { pair: { id: string; name: string }; userId
       return (data ?? []) as Member[];
     },
   });
+  const ranking = useQuery({
+    queryKey: ["pair_ranking", pair.id],
+    staleTime: 0,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("pair_ranking", { p_pair: pair.id });
+      if (error) throw error;
+      return (data ?? []) as { user_id: string; display_name: string; weekly_xp: number; total_xp: number; level: number; is_me: boolean }[];
+    },
+  });
   const [note, setNote] = useState("");
   const [confirmLeave, setConfirmLeave] = useState(false);
 
@@ -182,7 +192,7 @@ function PairCard({ pair, userId }: { pair: { id: string; name: string }; userId
     <section className="card-fita p-5" aria-labelledby={`p-${pair.id}`}>
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 id={`p-${pair.id}`} className="font-serif text-xl font-semibold">{pair.name}</h2>
-        <button onClick={() => status.refetch()} aria-label="Atualizar" className="btn-ghost px-3 py-1.5 text-sm" disabled={status.isFetching}>
+        <button onClick={() => { status.refetch(); ranking.refetch(); }} aria-label="Atualizar" className="btn-ghost px-3 py-1.5 text-sm" disabled={status.isFetching}>
           {status.isFetching ? "…" : "Atualizar"}
         </button>
       </div>
@@ -212,6 +222,29 @@ function PairCard({ pair, userId }: { pair: { id: string; name: string }; userId
           )}
         </>
       )}
+      <div className="mt-5 border-t border-thread pt-4">
+        <h3 className="font-serif text-lg">Ritmo da semana</h3>
+        <p className="mb-3 text-xs text-ink-2">A semana recomeça na segunda-feira</p>
+        {ranking.isLoading ? <Loading /> : ranking.isError ? <ErrorBox onRetry={() => ranking.refetch()} /> : (() => {
+          const r = ranking.data!; const max = Math.max(0, ...r.map((x) => x.weekly_xp));
+          if (max === 0) return <p className="text-sm text-ink-2">Ninguém leu ainda esta semana. Que tal começar?</p>;
+          return (
+            <ol className="space-y-3">
+              {r.map((m, i) => (
+                <li key={m.user_id} className="space-y-1">
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="w-5 text-ink-2">{i + 1}</span>
+                    <span className="flex-1 font-medium">{m.is_me ? "Você" : m.display_name}{i === 0 && <span className="ml-2 text-xs font-normal text-ribbon">Em destaque esta semana</span>}</span>
+                    <LevelSeal level={m.level} small />
+                    <span className="w-14 text-right text-ink-2">{m.weekly_xp} XP</span>
+                  </div>
+                  <div className="ml-7 h-1.5 rounded-full bg-page"><div className="h-full rounded-full bg-leaf" style={{ width: `${(m.weekly_xp / max) * 100}%` }} /></div>
+                </li>
+              ))}
+            </ol>
+          );
+        })()}
+      </div>
       {note && <p role="status" className="mt-3 text-sm text-ink-2">{note}</p>}
       <div className="mt-4 flex gap-2">
         <button onClick={invite} className="btn-primary flex-1 py-3">Convidar</button>
