@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "./supabase";
+import { checkBadges, GAME_KEY } from "./game";
 
 export const TZ = "America/Sao_Paulo";
 export const TOTAL_CHAPTERS = 1189;
@@ -158,7 +159,9 @@ export function useToggleRead(userId: string) {
         if (error) throw error;
       }
     },
+    onSuccess: (_d, { read }) => { if (read) void checkBadges(qc); else qc.invalidateQueries({ queryKey: GAME_KEY }); },
     onMutate: async ({ book, chapter, read }) => {
+      if (read && typeof navigator !== "undefined" && "vibrate" in navigator) { try { navigator.vibrate(15); } catch { /* noop */ } }
       await qc.cancelQueries({ queryKey: qk });
       const prev = qc.getQueryData<Reading[]>(qk);
       qc.setQueryData<Reading[]>(qk, (old = []) =>

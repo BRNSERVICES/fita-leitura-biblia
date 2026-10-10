@@ -21,6 +21,7 @@
   --color-ribbon: var(--ribbon);
   --color-leaf: var(--leaf);
   --color-thread: var(--thread);
+  --color-rest: var(--rest);
   --color-border: var(--thread);
   --color-primary: var(--ink);
   --color-primary-foreground: var(--paper);
@@ -37,6 +38,7 @@
   --ribbon: #a8284b;
   --leaf: #4f7a5c;
   --thread: #cbd3ce;
+  --rest: #4f8a90;
   color-scheme: light;
 }
 
@@ -50,6 +52,7 @@
     --ribbon: #e0577a;
     --leaf: #7fb48c;
     --thread: #25383f;
+    --rest: #78b4ba;
     color-scheme: dark;
   }
 }
@@ -63,6 +66,7 @@
   --ribbon: #e0577a;
   --leaf: #7fb48c;
   --thread: #25383f;
+  --rest: #78b4ba;
   color-scheme: dark;
 }
 
@@ -106,4 +110,18 @@
   border-radius: 14px;
   background: var(--card);
   color: var(--ink);
+}
+
+@keyframes xp-float { 0% { opacity: 0; transform: translateY(4px); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-26px); } }
+@keyframes pop-in { 0% { opacity: 0; transform: scale(.9); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes confetti-fall { 0% { transform: translateY(-20px) rotate(0); opacity: 1; } 100% { transform: translateY(340px) rotate(540deg); opacity: 0; } }
+@utility xp-float { animation: xp-float 1.1s ease-out forwards; }
+@utility pop-in { animation: pop-in .25s ease-out; }
+@utility confetti-piece {
+  position: absolute; top: 0; width: 8px; height: 14px; border-radius: 2px;
+  animation: confetti-fall 1.8s ease-in forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .xp-float, .pop-in, .confetti-piece { animation: none !important; }
+  .confetti-piece { display: none; }
 }
