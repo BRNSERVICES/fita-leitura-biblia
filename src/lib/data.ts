@@ -132,6 +132,31 @@ export function useTranslation(id?: number) {
   });
 }
 
+export type TranslationRow = { id: number; code: string; name: string; attribution: string | null };
+
+export function useTranslations() {
+  return useQuery({
+    queryKey: ["translations"],
+    staleTime: Infinity,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("translations").select("id,code,name,attribution").order("id");
+      if (error) throw error;
+      return data as TranslationRow[];
+    },
+  });
+}
+
+export function useChangeTranslation(userId: string, upId: string | number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (translationId: number) => {
+      const { error } = await supabase.from("user_plans").update({ translation_id: translationId }).eq("id", upId).eq("user_id", userId);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["user_plan", userId] }),
+  });
+}
+
 export function useVerses(translationId: number | undefined, book: number, chapter: number) {
   return useQuery({
     queryKey: ["verses", translationId, book, chapter],
