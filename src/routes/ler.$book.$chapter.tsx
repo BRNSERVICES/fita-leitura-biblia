@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Shell, Loading, ErrorBox } from "@/components/ui-fita";
-import { key, useBooks, useReadings, useToggleRead, useTranslation, useVerses, type UserPlan } from "@/lib/data";
+import { key, useBooks, useChangeTranslation, useReadings, useToggleRead, useTranslation, useTranslations, useVerses, type UserPlan } from "@/lib/data";
 
 export const Route = createFileRoute("/ler/$book/$chapter")({
   ssr: false,
@@ -44,6 +44,8 @@ function Reader({ userId, up }: { userId: string; up: UserPlan }) {
   const verses = useVerses(up.translation_id, validIds ? book : 0, validIds ? chapter : 0);
   const readings = useReadings(userId);
   const tr = useTranslation(up.translation_id);
+  const translations = useTranslations();
+  const changeTr = useChangeTranslation(userId, up.id);
   const toggle = useToggleRead(userId);
   const [size, setSize] = useState(19);
   useEffect(() => { const s = Number(localStorage.getItem("fita-font")); if (s) setSize(s); }, []);
@@ -68,6 +70,11 @@ function Reader({ userId, up }: { userId: string; up: UserPlan }) {
       <div className="mb-6 flex items-center justify-between">
         <div className="flex gap-4 text-sm text-ink-2"><Link to="/">‹ Hoje</Link><Link to="/biblia">Livros</Link></div>
         <div className="flex gap-2">
+          {(translations.data?.length ?? 0) > 1 && (
+            <button onClick={() => { const l = translations.data!; const i = l.findIndex((t) => t.id === up.translation_id); changeTr.mutate(l[(i + 1) % l.length]!.id); }}
+              disabled={changeTr.isPending} aria-label={`Trocar versão da Bíblia. Atual: ${tr.data?.name ?? ""}`}
+              className="btn-ghost px-3 py-1.5 text-sm font-medium">{tr.data?.code ?? "…"} ⇄</button>
+          )}
           <button onClick={() => change(-2)} aria-label="Diminuir fonte" className="btn-ghost px-3 py-1.5 text-sm">A−</button>
           <button onClick={() => change(2)} aria-label="Aumentar fonte" className="btn-ghost px-3 py-1.5 text-base">A+</button>
         </div>
@@ -77,10 +84,13 @@ function Reader({ userId, up }: { userId: string; up: UserPlan }) {
 
       <div key={`${book}-${chapter}`} className="mt-6 pb-32 font-serif leading-relaxed" style={{ fontSize: size }}>
         {verses.isLoading || verses.isFetching && !verses.data ? <Loading /> : verses.isError ? <ErrorBox onRetry={() => verses.refetch()} /> :
-          rows.filter((v) => v.verse > 0).map((v) => (
+          rows.filter((v) => v.verse > 0).length === 0 ? (
+            <p className="text-center font-sans text-sm text-ink-2">Este capítulo não está disponível nesta versão. Use o botão ⇄ para trocar de versão.</p>
+          ) : rows.filter((v) => v.verse > 0).map((v) => (
             <p key={v.verse} className="mb-2"><sup className="mr-1 font-sans text-[0.6em] font-semibold text-ink-2">{v.verse}</sup>{v.text}</p>
           ))}
-        <p className="mt-8 text-center font-sans text-xs tracking-widest text-ink-2">{tr.data?.code ?? "BLIVRE"}</p>
+        <p className="mt-8 text-center font-sans text-xs tracking-widest text-ink-2">{tr.data?.code ?? ""}</p>
+        {tr.data?.attribution && <p className="mt-1 text-center font-sans text-[11px] leading-snug text-ink-2">{tr.data.attribution}</p>}
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-thread bg-paper">

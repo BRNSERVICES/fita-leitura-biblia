@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Shell, Loading, ErrorBox } from "@/components/ui-fita";
 import { supabase } from "@/lib/supabase";
-import { PLAN_BLURB, spDate, usePlans, useProfile, useTranslation, type UserPlan } from "@/lib/data";
+import { PLAN_BLURB, spDate, useChangeTranslation, usePlans, useProfile, useTranslation, useTranslations, type UserPlan } from "@/lib/data";
 import { NameForm } from "./juntos";
 import { downloadIcs } from "@/lib/ics";
 import { applyTheme, type ThemeMode } from "@/lib/theme";
@@ -32,6 +32,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Settings({ userId, up }: { userId: string; up: UserPlan }) {
   const tr = useTranslation(up.translation_id);
+  const translations = useTranslations();
+  const changeTr = useChangeTranslation(userId, up.id);
+  const [trMsg, setTrMsg] = useState("");
   const qc = useQueryClient();
   const nav = useNavigate();
   const [time, setTime] = useState((up.reminder_time ?? "07:00").slice(0, 5));
@@ -70,13 +73,22 @@ function Settings({ userId, up }: { userId: string; up: UserPlan }) {
 
       <Section title="Tradução">
         <div role="radiogroup" aria-label="Tradução" className="divide-y divide-thread">
-          <div role="radio" aria-checked="true" className="flex items-center justify-between py-2">
-            <span>Bíblia Livre</span><span className="h-4 w-4 rounded-full border-[5px] border-ink" aria-hidden />
-          </div>
+          {(translations.data ?? []).map((t) => {
+            const on = t.id === up.translation_id;
+            return (
+              <button key={t.id} role="radio" aria-checked={on} disabled={changeTr.isPending}
+                onClick={() => { if (on) return; setTrMsg(""); changeTr.mutate(t.id, { onSuccess: () => setTrMsg(`Tradução trocada para ${t.name}.`), onError: () => setTrMsg("Não foi possível trocar a tradução. Tente de novo.") }); }}
+                className="flex min-h-[48px] w-full items-center justify-between py-2 text-left">
+                <span>{t.name} <span className="text-xs text-ink-2">({t.code})</span></span>
+                <span className={`h-4 w-4 rounded-full ${on ? "border-[5px] border-ink" : "border-2 border-thread"}`} aria-hidden />
+              </button>
+            );
+          })}
           <div role="radio" aria-checked="false" aria-disabled="true" className="flex items-center justify-between py-2 text-ink-2">
             <span>Tradução Brasileira de 1917</span><span className="text-xs">Em breve</span>
           </div>
         </div>
+        {trMsg && <p role="status" className="mt-2 text-sm text-ink-2">{trMsg}</p>}
       </Section>
 
       <Section title="Lembrete">
